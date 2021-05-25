@@ -83,8 +83,6 @@ function view() {
 	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | \
 		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
 
-	test $lesson || no_file "$lesson".mp4
-
 	if test -z "$lesson.mp4"; then
 		mpv $(grep $lesson $INPUT_FILE)
 	else
