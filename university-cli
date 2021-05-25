@@ -13,6 +13,9 @@ EXIT_WRONG_ARG=3
 EXIT_NOT_FOUND=4
 EXIT_INTERRUPT=5
 
+# File name for site's html code
+INPUT_FILE=webpage.html
+
 function no_dep() {
 	printf "university-cli: $1 not found, install $1 to proceed"
 	exit $EXIT_NO_DEPS
@@ -27,6 +30,24 @@ function no_download() {
 	printf "$1 exists. Nothing to do."
 	exit $EXIT_SUCCESS
 }
+
+function no_input() {
+	printf "university-cli: No input file found: download the html page\
+		in a file called $INPUT_FILE and retry"
+	exit $EXIT_NO_INPUT
+}
+
+function check_webpage() {
+	# Check for the existence of the input file
+	test -e $INPUT_FILE || no_input
+
+	# Variables
+	VIDEOS=($(grep mp4 $INPUT_FILE | cut -d\" -f2))
+	NAMES=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | cut -d: -f3 | \
+		sed 's/.mp4.*//'))
+
+}
+
 
 function download() {
 	which youtube-dl>/dev/null || no_dep youtube-dl
@@ -48,10 +69,13 @@ function download_all() {
 	done && exit $EXIT_SUCCESS
 }
 
-function no_input() {
-	printf "university-cli: No input file found: download the html page\
-		in a file called $INPUT_FILE and retry"
-	exit $EXIT_NO_INPUT
+function usage() {
+	printf "Usage:\n\tuniversity-cli [OPTIONS] \
+		\n\nAvailable options: \
+		\n\t-h:\tDisplay this help message \
+		\n\t-d:\tChoose a lesson to download \
+		\n\t-D:\tDownload all videos \
+		\n\t-v:\tChoose a lesson to watch\n"
 }
 
 function view() {
@@ -69,34 +93,22 @@ function view() {
 	exit $EXIT_SUCCESS
 }
 
-# File name for site's html code
-INPUT_FILE=webpage.html
-
-# Check for the existence of the input file
-test -e $INPUT_FILE || no_input
-
-# Variables
-VIDEOS=($(grep mp4 $INPUT_FILE | cut -d\" -f2))
-NAMES=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | cut -d: -f3 | sed 's/.mp4.*//'))
-
 # Read command line options
+[ $# -eq 0 ] && usage
 while getopts ":hDdv" o; do case "${o}" in
-	h) printf "Usage:\n\n\tuniversity-cli [OPTIONS] \
-		\n\nAvailable options: \
-		\n\t-h:\tDisplay this help message \
-		\n\t-d:\tChoose a lesson to download \
-		\n\t-D:\tDownload all videos \
-		\n\t-v:\tChoose a lesson to watch\n\n"
+	h) usage
 		;;
-	d) download
+	d) check_webpage
+	   download
 		;;
-	D) download_all
+	D) check_webpage
+	   download_all
 		;;
-	v) view
+	v) check_webpage
+	   view
 		;;
 	*) printf "Invalid option: -%s\\nTry -h for help\n" "$OPTARG" && \
 		exit $EXIT_WRONG_ARG
 		;;
 esac
 done
-
