@@ -1,0 +1,36 @@
+#!/bin/bash
+# Author: Mario Forzanini https://marioforzanini.com
+# Date: 25/05/2021
+# Description: Download video lessons from ariel.unimi.it
+# Dependencies: youtube-dl https://www.youtube-dl.org , wget
+
+output_file=webpage.html # File name for site's html code
+videos=( $(grep mp4 $output_file | cut -d\" -f2) )
+names=( $(grep mp4 $output_file | cut -d\" -f2 | cut -d: -f3 | sed 's/.mp4.*//') )
+
+function download() {
+	for i in ${!videos[@]}; do
+		youtube-dl --no-check-certificate "${videos[$i]}" -o "${names[$i]}".mp4
+	done
+}
+
+function view() {
+	lesson=$(echo ${names[@]} | dmenu -p "Lesson: " -i -c -l 10)
+	mpv $PWD/$lesson.mp4
+}
+
+
+# Read command line options
+# TODO Fix default actions
+
+while getopts "hdv" o; do case "${o}" in
+	h) printf "Usage:\n\n\tunimi-cli [OPTIONS]\n\nAvailable options:\n\t-h:\tDisplay this help message\n\t-d:\tDownload all videos\n\t-v:\tChoose a lesson to watch\n\n"
+	;;
+	d) download
+	;;
+	v) view
+	;;
+	*) printf "Invalid option: -%s\\nTry -h for help\n" "$OPTARG" && exit 1
+	;;
+esac
+done
