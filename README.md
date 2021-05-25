@@ -2,14 +2,30 @@
 Command Line Interface to ariel.unimi.it
 
 # Install
-Install the [dependencies](#Dependencies), clone the repo and add it to your $PATH
+Install the [dependencies](#Dependencies), clone the repo
 
 ~~~ sh
 $ git clone https://github.com/mar-foo/university/university-cli
+$ cd university-cli
+$ make install
+~~~
+
+by default the script is copied to ~/.local/bin, to add it to your $PATH run
+
+~~~ sh
+$ export PATH="$HOME/.local/bin:${PATH}"
+~~~
+
+To have your $PATH automatically updated add the command to your shell's configuration file (~/.bashrc, ~/.zshrc ...); if you don't know which shell you're running run
+
+~~~ sh
+$ echo $0
 ~~~
 
 ## Dependencies
-[dmenu](https://tools.suckless.org/dmenu) to choose a video to stream with [mpv](https://mpv.io), [youtube-dl](https://youtube-dl.org) to download it.
+- [dmenu](https://tools.suckless.org/dmenu) to choose videos to download/stream
+- [mpv](https://mpv.io) to stream videos
+- [youtube-dl](https://youtube-dl.org) to download videos
 
 # Usage
 At the moment you need to have the html source code for the webpage of the course downloaded to a file called *webpage.html*, to download it look up the documentation for your browser.
