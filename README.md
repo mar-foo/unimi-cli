@@ -5,7 +5,7 @@ Command Line Interface to ariel.unimi.it
 Install the [dependencies](#Dependencies), clone the repo
 
 ~~~ sh
-$ git clone https://github.com/mar-foo/university/university-cli
+$ git clone https://github.com/mar-foo/university-cli
 $ cd university-cli
 $ make install
 ~~~
