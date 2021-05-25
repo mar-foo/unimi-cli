@@ -2,10 +2,10 @@
 Command Line Interface to ariel.unimi.it
 
 # Install
-Clone the repo and add it to your $PATH
+Install the [dependencies](#Dependencies), clone the repo and add it to your $PATH
 
 ## Dependencies
-[mpv](https://mpv.io) to stream videos, [youtube-dl](https://youtube-dl.org) to download them
+[dmenu](https://tools.suckless.org/dmenu) to choose a video to stream with [mpv](https://mpv.io), [youtube-dl](https://youtube-dl.org) to download it.
 
 # Usage
 At the moment you need to have the html source code for the webpage of the course downloaded to a file called webpage.html, to download it look up the documentation for your browser.
