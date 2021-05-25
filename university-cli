@@ -2,25 +2,42 @@
 # Author: Mario Forzanini https://marioforzanini.com
 # Date: 25/05/2021
 # Description: Download and watch video lessons from ariel.unimi.it
-# Dependencies: mpv https://mpv.io, wget, youtube-dl https://www.youtube-dl.org
+# Dependencies: dmenu https://tools.suckless.org/dmenu mpv https://mpv.io,
+# 		wget, youtube-dl https://www.youtube-dl.org
 
 # Exit codes
 EXIT_SUCCESS=0
 EXIT_NO_DEPS=1
 EXIT_NO_INPUT=2
 EXIT_WRONG_ARG=3
+EXIT_NOT_FOUND=4
+EXIT_INTERRUPT=5
 
 function no_dep() {
 	printf "university-cli: $1 not found, install $1 to proceed"
 	exit $EXIT_NO_DEPS
 }
 
+function no_file() {
+	printf "university-cli: $1 not found, use -d to download it"
+	exit $EXIT_NOT_FOUND
+}
+
+function no_download() {
+	printf "$1 exists. Nothing to do."
+	exit $EXIT_SUCCESS
+}
+
 function download() {
 	which youtube-dl>/dev/null || no_dep youtube-dl
-	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | dmenu -p "Download Lesson: " -i -l 10)
+	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | \
+		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
+
+	test $lesson || no_file "$lesson".mp4
+	test -e "$lesson".mp4 && no_download "$lesson".mp4
+
 	youtube-dl --no-check-certificate $(grep "$lesson" $INPUT_FILE) -o \
-		"$lesson.mp4"
-	exit $EXIT_SUCCESS
+		"$lesson.mp4" && exit $EXIT_SUCCESS
 }
 
 function download_all() {
@@ -28,8 +45,7 @@ function download_all() {
 	for i in ${!VIDEOS[@]}; do
 		youtube-dl --no-check-certificate "${VIDEOS[$i]}" -o \
 		"${NAMES[$i]}".mp4
-	done
-	exit $EXIT_SUCCESS
+	done && exit $EXIT_SUCCESS
 }
 
 function no_input() {
@@ -40,7 +56,11 @@ function no_input() {
 
 function view() {
 	which mpv>/dev/null || no_dep mpv
-	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | dmenu -p "Lesson: " -i -l 10)
+	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | \
+		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
+
+	test $lesson || no_file "$lesson".mp4
+
 	if test -z "$lesson.mp4"; then
 		mpv $(grep $lesson $INPUT_FILE)
 	else
