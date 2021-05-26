@@ -40,6 +40,7 @@ $ university-cli -D
 ~~~
 
 Full list of command line options:
+- `university-cli -c` check for videos that were not downloaded
 - `university-cli -d` prompt for a video to download (uses `dmenu`)
 - `university-cli -D` download all of the .mp4 files found on the webpage
 - `university-cli -v` prompt for a video to stream (uses `mpv`)
