@@ -17,23 +17,22 @@ EXIT_INTERRUPT=5
 INPUT_FILE=webpage.html
 
 function no_dep() {
-	printf "university-cli: $1 not found, install $1 to proceed"
+	printf "university-cli: $1 not found, install $1 to proceed.\n"
 	exit $EXIT_NO_DEPS
 }
 
 function no_file() {
-	printf "university-cli: $1 not found, use -d to download it"
+	printf "university-cli: $1 not found, use -d to download it.\n"
 	exit $EXIT_NOT_FOUND
 }
 
 function no_download() {
-	printf "$1 exists. Nothing to do."
-	exit $EXIT_SUCCESS
+	test -e $1 && printf "$1 exists. Nothing to do.\n"
 }
 
 function no_input() {
 	printf "university-cli: No input file found: download the html page\
-		in a file called $INPUT_FILE and retry"
+		in a file called $INPUT_FILE and retry.\n"
 	exit $EXIT_NO_INPUT
 }
 
@@ -42,21 +41,23 @@ function check_webpage() {
 	test -e $INPUT_FILE || no_input
 
 	# Variables
-	VIDEOS=($(grep mp4 $INPUT_FILE | cut -d\" -f2))
+	VIDEOS=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | sed 's/%20/ /g'))
 	NAMES=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | cut -d: -f3 | \
 		sed 's/.mp4.*//'))
-
 }
 
+function check_downloads() {
+	for i in ${!NAMES[@]}; do
+		test -e ${NAMES[$i]}.mp4 || no_file "${NAMES[$i]}".mp4
+	done && exit $EXIT_SUCCESS
+}
 
 function download() {
 	which youtube-dl>/dev/null || no_dep youtube-dl
 	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | \
 		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
 
-	test $lesson || no_file "$lesson".mp4
-	test -e "$lesson".mp4 && no_download "$lesson".mp4
-
+	no_download "$lesson".mp4 && exit $EXIT_SUCCESS
 	youtube-dl --no-check-certificate $(grep "$lesson" $INPUT_FILE) -o \
 		"$lesson.mp4" && exit $EXIT_SUCCESS
 }
@@ -64,6 +65,7 @@ function download() {
 function download_all() {
 	which youtube-dl>/dev/null || no_dep youtube-dl
 	for i in ${!VIDEOS[@]}; do
+		no_download "$lesson".mp4 || continue
 		youtube-dl --no-check-certificate "${VIDEOS[$i]}" -o \
 		"${NAMES[$i]}".mp4
 	done && exit $EXIT_SUCCESS
@@ -73,9 +75,11 @@ function usage() {
 	printf "Usage:\n\tuniversity-cli [OPTIONS] \
 		\n\nAvailable options: \
 		\n\t-h:\tDisplay this help message \
+		\n\t-c:\tCheck to see which videos aren't downloaded \
 		\n\t-d:\tChoose a lesson to download \
 		\n\t-D:\tDownload all videos \
 		\n\t-v:\tChoose a lesson to watch\n"
+	exit $1
 }
 
 function view() {
@@ -92,9 +96,12 @@ function view() {
 }
 
 # Read command line options
-[ $# -eq 0 ] && usage
-while getopts ":hDdv" o; do case "${o}" in
-	h) usage
+[ $# -eq 0 ] && usage $EXIT_WRONG_ARG
+while getopts ":hcdDv" o; do case "${o}" in
+	h) usage $EXIT_SUCCESS
+		;;
+	c) check_webpage
+	check_downloads
 		;;
 	d) check_webpage
 	   download
