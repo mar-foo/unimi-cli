@@ -61,11 +61,11 @@ At the moment watching and downloading videos is the only thing supported.
 
 ## TODO
 - Test for different courses: teachers might store their lessons on different sites which might not be supported by youtube-dl
-- Fix issue with spaces: if the filename contains a space (don't do that teachers) then the program might act weird
+- Fix issue with spaces: if the filename contains a space then the program might act weird
 - Add a test to check if every lesson has been installed by `-D` option
 
 # Contributing
 I wrote this little program for myself, if you need/want new features patches are welcome, if you find any bugs file an issue on github and I'll try to figure it out.
 
 # Copyright
-This project is not endorsed or approved by the ["Universita degli Studi di Milano"](https://unimi.it), all of the content stored on [ariel](https://ariel.unimi.it) is protected by copyright as stated by [unimi](https://ariel.unimi.it/documenti/copyright) and should be used according to the rules.
+This project is not endorsed or approved by the ["Universita degli Studi di Milano"](https://unimi.it), all of the content stored on [ariel](https://ariel.unimi.it) is protected by [copyright](https://ariel.unimi.it/documenti/copyright) as stated by unimi and should be used according to the rules.
