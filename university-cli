@@ -22,12 +22,16 @@ function no_dep() {
 }
 
 function no_file() {
-	printf "university-cli: $1 not found, use -d to download it.\n"
-	exit $EXIT_NOT_FOUND
+	printf "university-cli: %s not found, use -d to download it.\n" "$1"
 }
 
 function no_download() {
-	test -e $1 && printf "$1 exists. Nothing to do.\n"
+	if test -e $1; then
+		printf "%s exists. Nothing to do.\n" "$1"
+		return $EXIT_SUCCESS
+	else
+		return $EXIT_NOT_FOUND
+	fi
 }
 
 function no_input() {
@@ -48,7 +52,7 @@ function check_webpage() {
 
 function check_downloads() {
 	for i in ${!NAMES[@]}; do
-		test -e ${NAMES[$i]}.mp4 || no_file "${NAMES[$i]}".mp4
+		test -e "${NAMES[$i]}".mp4 || no_file "${NAMES[$i]}".mp4
 	done && exit $EXIT_SUCCESS
 }
 
@@ -58,14 +62,14 @@ function download() {
 		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
 
 	no_download "$lesson".mp4 && exit $EXIT_SUCCESS
-	youtube-dl --no-check-certificate $(grep "$lesson" $INPUT_FILE) -o \
+	youtube-dl --no-overwrite --no-check-certificate \
+		$(grep "$lesson" $INPUT_FILE) -o \
 		"$lesson.mp4" && exit $EXIT_SUCCESS
 }
 
 function download_all() {
 	which youtube-dl>/dev/null || no_dep youtube-dl
 	for i in ${!VIDEOS[@]}; do
-		no_download "$lesson".mp4 || continue
 		youtube-dl --no-check-certificate "${VIDEOS[$i]}" -o \
 		"${NAMES[$i]}".mp4
 	done && exit $EXIT_SUCCESS
