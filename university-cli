@@ -86,6 +86,7 @@ function download() {
 	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | \
 		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
 
+
 	no_download "$lesson".mp4 && exit $EXIT_SUCCESS
 		dl $(grep "$lesson" $INPUT_FILE) "$lesson.mp4" && exit $EXIT_SUCCESS
 }
@@ -100,12 +101,13 @@ function download_all() {
 function view() {
 	which mpv>/dev/null || no_dep mpv
 	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | \
-		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
+		dmenu -p "View Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
 
-	if test -z "$lesson.mp4"; then
-		mpv $(grep $lesson $INPUT_FILE)
+	if test -e "$lesson"; then
+		mpv "$lesson"
 	else
-		mpv $PWD/$lesson.mp4
+		mpv $(grep "$lesson" $INPUT_FILE | cut -d\" -f2 | \
+			sed 's/%20/ /g')
 	fi
 	exit $EXIT_SUCCESS
 }
