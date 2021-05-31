@@ -3,7 +3,8 @@
 # Date: 25/05/2021
 # Description: Download and watch video lessons from ariel.unimi.it
 # Dependencies: dmenu https://tools.suckless.org/dmenu mpv https://mpv.io,
-# 		wget, youtube-dl https://www.youtube-dl.org
+# 		wget, youtube-dl https://www.youtube-dl.org, ffmpeg
+#		https://ffmpeg.org
 
 # Exit codes
 EXIT_SUCCESS=0
@@ -16,9 +17,30 @@ EXIT_INTERRUPT=5
 # File name for site's html code
 INPUT_FILE=webpage.html
 
+function usage() {
+	printf "Usage:\n\tuniversity-cli [OPTIONS] \
+		\n\nAvailable options: \
+		\n\t-h:\tDisplay this help message \
+		\n\t-c:\tCheck to see which videos aren't downloaded \
+		\n\t-d:\tChoose a lesson to download \
+		\n\t-D:\tDownload all videos \
+		\n\t-v:\tChoose a lesson to watch\n"
+	exit $1
+}
+
 function no_dep() {
 	printf "university-cli: $1 not found, install $1 to proceed.\n"
 	exit $EXIT_NO_DEPS
+}
+
+# Command to download videos
+function dl() {
+	which ffmpeg>/dev/null || no_dep ffmpeg
+	# from https://wiki.studentiunimi.it/guida:scaricare_videolezioni_ariel
+	ffmpeg -i "$1" -n -preset slow -c:v libx265 -crf 31 -c:a aac -b:a 64k -ac 1 "$2"
+
+	# which youtube-dl>/dev/null || no_dep youtube-dl
+	# youtube-dl --no-overwrite --no-check-certificate "$1" -o "$2"
 }
 
 function no_file() {
@@ -45,45 +67,34 @@ function check_webpage() {
 	test -e $INPUT_FILE || no_input
 
 	# Variables
-	VIDEOS=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | sed 's/%20/ /g'))
-	NAMES=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | cut -d: -f3 | \
-		sed 's/.mp4.*//'))
+	VIDEOS=($(grep "source src=" $INPUT_FILE | cut -d\" -f2 | sed 's/%20/ /g'))
+	NAMES=($(grep "source src=" $INPUT_FILE | cut -d\" -f2 | sed 's/^.*mp4://'\
+		| rev | cut -d/ -f2 | rev))
+	#VIDEOS=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | sed 's/%20/ /g'))
+	#NAMES=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | cut -d: -f3 | \
+		#sed 's/.mp4.*//'))
 }
 
 function check_downloads() {
 	for i in ${!NAMES[@]}; do
-		test -e "${NAMES[$i]}".mp4 || no_file "${NAMES[$i]}".mp4
+		#test -e "${NAMES[$i]}".mp4 || no_file "${NAMES[$i]}".mp4
+		test -e "${NAMES[$i]}" || no_file "${NAMES[$i]}"
 	done && exit $EXIT_SUCCESS
 }
 
 function download() {
-	which youtube-dl>/dev/null || no_dep youtube-dl
 	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | \
 		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
 
 	no_download "$lesson".mp4 && exit $EXIT_SUCCESS
-	youtube-dl --no-overwrite --no-check-certificate \
-		$(grep "$lesson" $INPUT_FILE) -o \
-		"$lesson.mp4" && exit $EXIT_SUCCESS
+		dl $(grep "$lesson" $INPUT_FILE) "$lesson.mp4" && exit $EXIT_SUCCESS
 }
 
 function download_all() {
-	which youtube-dl>/dev/null || no_dep youtube-dl
 	for i in ${!VIDEOS[@]}; do
-		youtube-dl --no-check-certificate "${VIDEOS[$i]}" -o \
-		"${NAMES[$i]}".mp4
+		dl "${VIDEOS[$i]}" "${NAMES[$i]}"
+		#"${NAMES[$i]}".mp4
 	done && exit $EXIT_SUCCESS
-}
-
-function usage() {
-	printf "Usage:\n\tuniversity-cli [OPTIONS] \
-		\n\nAvailable options: \
-		\n\t-h:\tDisplay this help message \
-		\n\t-c:\tCheck to see which videos aren't downloaded \
-		\n\t-d:\tChoose a lesson to download \
-		\n\t-D:\tDownload all videos \
-		\n\t-v:\tChoose a lesson to watch\n"
-	exit $1
 }
 
 function view() {
