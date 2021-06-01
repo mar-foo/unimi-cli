@@ -73,6 +73,11 @@ in a file called $INPUT_FILE and retry.\n"
 	exit $EXIT_NO_INPUT
 }
 
+function interrupt() {
+	printf "Interrupted by user, exiting"
+	exit
+}
+
 function set_speed() {
 	SPEED="$1"
 	if test "$SPEED" = "fast"; then
@@ -90,10 +95,10 @@ function check_webpage() {
 	test -e $INPUT_FILE || no_input
 
 	# Variables
-	VIDEOS=($(grep "source src=" $INPUT_FILE | cut -d\" -f2 | sed 's/%20/ /g'))
-	NAMES=($(grep "source src=" $INPUT_FILE | cut -d\" -f2 | sed 's/^.*mp4://'\
+	VIDEOS=($(grep "source src=" $INPUT_FILE | cut -d\" -f2))
+	NAMES=($(grep "source src=" $INPUT_FILE | cut -d\" -f2 | sed 's/^.*mp4://;s/%20/%%20/g' \
 		| rev | cut -d/ -f2 | rev))
-			#VIDEOS=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | sed 's/%20/ /g'))
+			#VIDEOS=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | sed 's/%20/%%20/g'))
 			#NAMES=($(grep mp4 $INPUT_FILE | cut -d\" -f2 | cut -d: -f3 | \
 			#sed 's/.mp4.*//'))
 }
@@ -108,6 +113,7 @@ function check_downloads() {
 function download() {
 	lesson=$(echo ${NAMES[@]} | sed 's/ /\n/g' | \
 		dmenu -p "Download Lesson: " -i -l 10) || exit $EXIT_INTERRUPT
+	trap interrupt SIGINT
 
 	no_download "$lesson".mp4 && exit $EXIT_SUCCESS
 	$DOWNLOAD_COMMAND "$(grep "$lesson" $INPUT_FILE | cut -d\" -f2 | \
@@ -115,6 +121,7 @@ function download() {
 }
 
 function download_all() {
+	trap interrupt SIGINT
 	for i in ${!VIDEOS[@]}; do
 		$DOWNLOAD_COMMAND "${VIDEOS[$i]}" "${NAMES[$i]}"
 		#"${NAMES[$i]}".mp4
