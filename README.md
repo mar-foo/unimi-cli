@@ -27,6 +27,7 @@ $ echo $0
 - [dmenu](https://tools.suckless.org/dmenu) to choose videos to download/stream
 - [mpv](https://mpv.io) to stream videos
 - [youtube-dl](https://youtube-dl.org) to download videos
+- [ffmpeg](https://ffmpeg.org) to encode videos
 
 # Usage
 At the moment you need to have the html source code for the webpage of the course downloaded to a file called *webpage.html*, to download it look up the documentation for your web browser.
@@ -43,8 +44,11 @@ Full list of command line options:
 - `university-cli -c` check for videos that were not downloaded
 - `university-cli -d` prompt for a video to download (uses `dmenu`)
 - `university-cli -D` download all of the .mp4 files found on the webpage
+- `university-cli -s [SPEED]` set speed of the download (has to be set as first option to work), possible values are 'fast' or 'slow'
 - `university-cli -v` prompt for a video to stream (uses `mpv`)
 - `university-cli -h` prints usage information
+
+Regarding the `-s` option: the 'fast' method uses youtube-dl's default encoding, output files will be bigger in size but will be encoded faster; on the other hand the 'slow' method uses `ffmpeg` with the options specified [here](https://wiki.studentiunimi.it/guida:scaricare_videolezioni_ariel) which will result in smaller files but will require more time to encode. If no option is specified the default value is 'fast'.
 
 # Example usage
 Using the same example directory ~/Documents/University/Videos, to view a video lesson you would run:
@@ -54,6 +58,13 @@ $ cd ~/Documents/University/Videos
 $ university-cli -v # Prompt for a lesson to stream
 ~~~
 by default it will look for a local file that matches the chosen name in the current directory, if it is not there it will stream it.
+
+to download it instead you would do:
+
+~~~ sh
+$ university-cli -s 'fast' -d
+~~~
+this promts for a lesson to download using the 'fast' method.
 
 # Status
 The project is still immature, in the future this wants to be an ncurses/cli interface to browse Ariel.
