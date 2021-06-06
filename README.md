@@ -16,7 +16,7 @@ $ cd university-cli
 Run
 
 ~~~ sh
-$ make install
+$ ./install.sh
 ~~~
 
 by default the program is copied to ~/.local/bin, to add it to your $PATH run
