@@ -29,13 +29,22 @@ const usage = `Usage: university-cli [-s SPEED] [OPTIONS]
 
 Available options:
 	-h:Display this help message
+	-D:Download all videos
+	-s:Choose speed of download (possible values: fast, slow),
+		has to be set as first option.
+`
+
+/*const usage = `Usage: university-cli [-s SPEED] [OPTIONS]
+
+Available options:
+	-h:Display this help message
 	-c:Check to see which videos aren't downloaded
 	-d:Choose a lesson to download
 	-D:Download all videos
 	-s:Choose speed of download (possible values: fast, slow),
 		has to be set as first option.
 	-v:Choose a lesson to watch
-`
+`*/
 
 type Options struct {
 	command  string
