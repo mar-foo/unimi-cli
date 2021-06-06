@@ -2,8 +2,8 @@
 Command Line Interface to ariel.unimi.it
 
 # Installation
-The program is just a simple bash script (will try to make it POSIX compliant in the future) so it only works on GNU/Linux and maybe macOS (not tested).
-I rewrote the script in [go](https://golang.org) to make it multi-platform and to practise with the language. The bash script has been moved to **university-cli.sh** while compiled binaries have been moved into **bin/**.
+The program is just a simple `bash` script (will try to make it POSIX compliant in the future) so it only works on GNU/Linux and maybe macOS (not tested).
+I rewrote the script in [go](https://golang.org) to make it multi-platform and to practise with the language. The `bash` script has been moved to **university-cli.sh** while compiled binaries have been moved into **bin/**.
 
 Install the [dependencies](#dependencies) then clone the repo
 
@@ -25,7 +25,7 @@ by default the program is copied to ~/.local/bin, to add it to your $PATH run
 $ export PATH="$HOME/.local/bin:${PATH}"
 ~~~
 
-Your shell looks for programs in the list of directories stored in this variable, as soon as you close the terminal you are working in the value of the $PATH variable will be overwritten by the default value; to overcome this issue you have to add this configuration to `$HOME/.bashrc` if you are running bash or `$HOME/.zshrc` if you are running zsh as your default shell. To do so copy the following command:
+Your shell looks for programs in the list of directories stored in this variable, as soon as you close the terminal you are working in the value of the $PATH variable will be overwritten by the default value; to overcome this issue you have to add this configuration to `$HOME/.bashrc` if you are running `bash` or `$HOME/.zshrc` if you are running `zsh` as your default shell. To do so copy the following command:
 
 ~~~ sh
 $ echo 'export PATH="$HOME/.local/bin:${PATH}"' >> ~/.bashrc # If running bash
@@ -43,7 +43,7 @@ Install the [dependencies](#dependencies) then clone the repo
 > cd university-cli
 ~~~
 
-Move the executable, you will find it in `bin/windows/university-cli.exe`, in a directory in your [PATH](https://stackoverflow.com/questions/45072617/default-values-of-path-variables-in-windows-10).
+Move the executable in a directory in your [PATH](https://stackoverflow.com/questions/45072617/default-values-of-path-variables-in-windows-10), you will find it in `bin/windows/university-cli.exe`.
 <!-- Alternatively if you have `GNU Make` installed you can simply run:
 
 ~~~ sh
@@ -56,7 +56,7 @@ Copy the executable directly from this webpage: you can find it in `bin/windows/
 Consider downloading `git` because you can use it to automatically [update](#update) to the newest version.
 
 ## From source (All platforms)
-If you want to help with the developpment yourself you will need to be able to compile the source code into an executable, to do so i use [go](https://golang.org): `cd` into the installation directory and run:
+If you want to help with the development yourself you will need to be able to compile the source code into an executable, to do so i use [go](https://golang.org): `cd` into the installation directory and run:
 
 ~~~ sh
 $ go build university-cli.go
