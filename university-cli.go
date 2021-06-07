@@ -19,6 +19,7 @@ wget, youtube-dl https://www.youtube-dl.org, ffmpeg https://ffmpeg.org */
 const inputFile = "webpage.html"
 
 /* Exit codes */
+
 const ExitSucces = 0
 const ExitNoDeps = 1
 const ExitNoFile = 2
@@ -28,9 +29,10 @@ const ExitNotFound = 4
 const usage = `Usage: university-cli [-s SPEED] [OPTIONS]
 
 Available options:
-	-h:Display this help message
-	-D:Download all videos
-	-s:Choose speed of download (possible values: fast, slow),
+	-h, --help:	Display this help message
+	-c, --check:	Check to see which videos aren't downloaded
+	-D, --download-all:	Download all videos
+	-s, --speed:	Choose speed of download (possible values: fast, slow),
 		has to be set as first option.
 `
 
@@ -80,15 +82,13 @@ func noDep(dependency string) {
 	}
 }
 
-func noFile() {
-	log.Fatalln("university-cli: %s not found, use -d to download it.",
-		inputFile)
+func noFile(filename string) {
+	log.Fatalln("university-cli:", filename, "not found, use -d to download it.")
 }
 
 func noDownload(filename string) {
-	fmt.Println("university-cli: %s already downloaded, nothing to do",
-		filename)
-	os.Exit(ExitSucces)
+	fmt.Println("university-cli:", filename, "already downloaded, nothing to do")
+	/* os.Exit(ExitSucces) */
 }
 
 func noInput(filename string) {
@@ -105,13 +105,13 @@ func setSpeed(opts *Options, speed string) {
 	case "slow":
 		opts.command = "ffmpeg"
 	default:
-		log.Fatalln("Speed argument %s not recognised, possible values are: ", speed,
+		log.Fatalln("Speed argument", speed, "not recognised, possible values are:",
 			"'fast' and 'slow'")
 	}
 }
 
 //checkWebpage(file string) int checks for the existence of the input
-//file and find video URLs
+//file and finds video URLs
 func checkWebpage(filename string) []video {
 	file, fileError := os.Open(filename)
 	if fileError != nil {
@@ -147,7 +147,7 @@ func download(opts *Options, videos []video) {
 			var cmd *exec.Cmd
 			if opts.command == "youtube-dl" {
 				cmd = exec.Command(opts.command, "--no-check-certificate",
-					videos[i].url, "-o", videos[i].name)
+					"--no-overwrite", videos[i].url, "-o", videos[i].name)
 			} else {
 				// TODO Find a better way to handle multi-option commands
 				cmd = exec.Command(opts.command, "-i", videos[i].url, "-n",
@@ -162,8 +162,18 @@ func download(opts *Options, videos []video) {
 }
 
 //check()
-func check() {
-	fmt.Print("check")
+func check(videos []video) {
+	var exitCode int
+	for i := 0; i < len(videos); i++ {
+		if !fileExists(videos[i].name) {
+			fmt.Println("university-cli: file", videos[i].name, "not found.")
+			exitCode = ExitNoFile
+		}
+	}
+	if exitCode == 0 {
+		fmt.Println("Found every video, exiting.")
+	}
+	os.Exit(exitCode)
 }
 
 //parseOptions
@@ -174,17 +184,20 @@ func parseOptions(opts *Options, allArgs []string) {
 		case "-h", "--help":
 			fmt.Println(usage)
 			os.Exit(0)
-		case "-s":
+		case "-s", "--speed":
 			setSpeed(opts, allArgs[i+1])
 			i++
-		case "-D":
+		case "-D", "--download-all":
 			opts.download = "All"
 			videos := checkWebpage(inputFile)
 			download(opts, videos)
-		case "-c":
-			check()
+		case "-c", "--check":
+			videos := checkWebpage(inputFile)
+			check(videos)
 		default:
-			log.Fatalln("Unknown option %s", arg)
+			fmt.Println("Unknown option", arg)
+			fmt.Println(usage)
+			os.Exit(ExitWrongArg)
 		}
 	}
 }
@@ -198,4 +211,12 @@ func defaultOptions() *Options {
 func hasSubstring(s string, sub string) bool {
 	split := strings.Split(s, sub)
 	return len(split) > 1
+}
+
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
