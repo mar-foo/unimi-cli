@@ -29,11 +29,11 @@ const ExitNotFound = 4
 const usage = `Usage: university-cli [-s SPEED] [OPTIONS]
 
 Available options:
-	-h, --help:	Display this help message
-	-c, --check:	Check to see which videos aren't downloaded
-	-D, --download-all:	Download all videos
-	-s, --speed:	Choose speed of download (possible values: fast, slow),
-		has to be set as first option.
+  -h,  --help:         Display this help message
+  -c,  --check:        Check to see which videos aren't downloaded
+  -D,  --download-all: Download all videos
+  -s,  --speed:        Choose speed of download (possible values: fast, slow),
+                       has to be set as first option.
 `
 
 /*const usage = `Usage: university-cli [-s SPEED] [OPTIONS]
@@ -105,12 +105,17 @@ func checkWebpage(filename string) []video {
 		nameRegexp := regexp.MustCompile(":[[:alpha:]].*.mp4")
 		if hasSubstring(bufLine, "source src=") {
 			tempURL := urlRegexp.FindString(bufLine)
-			tempName := nameRegexp.FindString(tempURL)[1:]
-			tempVideo := &video{
-				url:  tempURL,
-				name: tempName,
+			tempName := nameRegexp.FindString(tempURL)
+			if tempName != "" {
+				/* If the filename contains "/" youtube-dl and ffmpeg will create
+				undesired subdirectories */
+				tempName := strings.Split(tempName[1:], "/")
+				tempVideo := &video{
+					url:  tempURL,
+					name: tempName[len(tempName)-1],
+				}
+				videos = append(videos, *tempVideo)
 			}
-			videos = append(videos, *tempVideo)
 		}
 	}
 	file.Close()
