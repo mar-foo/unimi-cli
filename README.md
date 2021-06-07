@@ -82,7 +82,7 @@ $ university-cli -D
 ~~~
 
 Full list of command line options:
-- `university-cli -c` check for videos that were not downloaded (`university-cli.sh` only)
+- `university-cli -c` check for videos that were not downloaded
 - `university-cli -d` prompt for a video to download (uses `dmenu`) (`university-cli.sh` only)
 - `university-cli -D` download all of the .mp4 files found on the webpage
 - `university-cli -s [SPEED]` set speed of the download (has to be set as first option to work), possible values are 'fast' or 'slow'
