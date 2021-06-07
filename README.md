@@ -96,16 +96,15 @@ Using the same example directory ~/Documents/University/Videos, to view a video 
 
 ~~~ sh
 $ cd ~/Documents/University/Videos
-$ university-cli -v # Prompt for a lesson to stream
+$ university-cli.sh -v # Prompt for a lesson to stream
 ~~~
 by default it will look for a local file that matches the chosen name in the current directory, if it is not there it will stream it.
 
-to download it instead you would do:
+To see if `university-cli -D` worked you can check that every file has been downloaded:
 
 ~~~ sh
-$ university-cli -s 'fast' -d
+$ university-cli -c # or university-cli --check
 ~~~
-this promts for a lesson to download using the 'fast' method.
 
 # Update
 To keep the installation up to date periodically `cd` into the directory where you cloned the repository and run:
