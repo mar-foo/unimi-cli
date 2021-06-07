@@ -65,8 +65,8 @@ $ go build university-cli.go
 This will create the new executable in the directory root.
 
 ## Dependencies
-- [dmenu](https://tools.suckless.org/dmenu) to choose videos to download/stream
-- [mpv](https://mpv.io) to stream videos
+- [dmenu](https://tools.suckless.org/dmenu) to choose videos to download/stream (`university-cli.sh` only)
+- [mpv](https://mpv.io) to stream videos (`university-cli.sh` only)
 - [youtube-dl](https://youtube-dl.org) to download videos
 - [ffmpeg](https://ffmpeg.org) to encode videos
 
