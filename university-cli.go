@@ -89,9 +89,9 @@ func check(videos []video) {
 	os.Exit(exitCode)
 }
 
-//checkWebpage(file string) int checks for the existence of the input
+//parseWebpage(file string) int checks for the existence of the input
 //file named "filename" and returns an array of videos it found
-func checkWebpage(filename string) []video {
+func parseWebpage(filename string) []video {
 	file, fileError := os.Open(filename)
 	if fileError != nil {
 		noFile(filename)
@@ -202,10 +202,10 @@ func parseOptions(opts *Options, allArgs []string) {
 			i++
 		case "-D", "--download-all":
 			opts.download = "All"
-			videos := checkWebpage(inputFile)
+			videos := parseWebpage(inputFile)
 			download(opts, videos)
 		case "-c", "--check":
-			videos := checkWebpage(inputFile)
+			videos := parseWebpage(inputFile)
 			check(videos)
 		default:
 			fmt.Println("Unknown option", arg)
