@@ -73,49 +73,28 @@ func main() {
 	parseOptions(opts, os.Args[1:])
 }
 
-/* Error handling */
-
-func noDep(dependency string) {
-	if _, err := exec.LookPath(dependency); err != nil {
-		log.Fatalln("university-cli: ", dependency, "not found, install it to",
-			"proceed")
+//check() is run when the -c option is given, it checks if every videos has been
+//downloaded based on their name
+func check(videos []video) {
+	var exitCode int
+	for i := 0; i < len(videos); i++ {
+		if !fileExists(videos[i].name) {
+			fmt.Println("university-cli: file", videos[i].name, "not found.")
+			exitCode = ExitNoFile
+		}
 	}
-}
-
-func noFile(filename string) {
-	log.Fatalln("university-cli:", filename, "not found, use -d to download it.")
-}
-
-func noDownload(filename string) {
-	fmt.Println("university-cli:", filename, "already downloaded, nothing to do")
-	/* os.Exit(ExitSucces) */
-}
-
-func noInput(filename string) {
-	log.Fatalln("university-cli: No input file found: download the html"+
-		"page in a file called", filename, "%s and retry.")
-}
-
-//setSpeed(speed string) int sets the speed of the download, accepted
-// values are: "fast" and "slow"
-func setSpeed(opts *Options, speed string) {
-	switch speed {
-	case "fast":
-		opts.command = "youtube-dl"
-	case "slow":
-		opts.command = "ffmpeg"
-	default:
-		log.Fatalln("Speed argument", speed, "not recognised, possible values are:",
-			"'fast' and 'slow'")
+	if exitCode == 0 {
+		fmt.Println("Found every video, exiting.")
 	}
+	os.Exit(exitCode)
 }
 
 //checkWebpage(file string) int checks for the existence of the input
-//file and finds video URLs
+//file named "filename" and returns an array of videos it found
 func checkWebpage(filename string) []video {
 	file, fileError := os.Open(filename)
 	if fileError != nil {
-		noInput(filename)
+		noFile(filename)
 	}
 	webpage := bufio.NewScanner(file)
 	/* videos, names := make([]string, 0), make([]string, 0) */
@@ -138,8 +117,16 @@ func checkWebpage(filename string) []video {
 	return videos
 }
 
+//defaultOptions() returns a pointer to an array of Options set to the default
+//values
+func defaultOptions() *Options {
+	return &Options{
+		command:  "youtube-dl", //fast download method
+		download: "All"}        //Download all the videos by default
+}
+
 //download(opts *Options, videos []video) int accept a slice of videos and
-//downloads all of them named accordingly
+//downloads them named accordingly
 func download(opts *Options, videos []video) {
 	if num := len(videos); opts.download == "All" {
 		for i := 0; i < num; i++ {
@@ -161,25 +148,46 @@ func download(opts *Options, videos []video) {
 	}
 }
 
-//check()
-func check(videos []video) {
-	var exitCode int
-	for i := 0; i < len(videos); i++ {
-		if !fileExists(videos[i].name) {
-			fmt.Println("university-cli: file", videos[i].name, "not found.")
-			exitCode = ExitNoFile
-		}
+//fileExists(filename string) returns true if the file called "filename" exists
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
 	}
-	if exitCode == 0 {
-		fmt.Println("Found every video, exiting.")
-	}
-	os.Exit(exitCode)
+	return !info.IsDir()
 }
 
-//parseOptions
+//hasSubstring(s string, sub string) returns true if s contains at least one
+//occurrence of sub
+func hasSubstring(s string, sub string) bool {
+	split := strings.Split(s, sub)
+	return len(split) > 1
+}
+
+//noDep(dependency string) ) exits if dependency is not found in PATH
+func noDep(dependency string) {
+	if _, err := exec.LookPath(dependency); err != nil {
+		log.Fatalln("university-cli: ", dependency, "not found, install it to",
+			"proceed")
+	}
+}
+
+//noDownload(filename string) checks if filename has already been downloaded
+func noDownload(filename string) {
+	fmt.Println("university-cli:", filename, "already downloaded, nothing to do")
+	os.Exit(ExitSucces)
+}
+
+//noFile(filename string) exits if filename is not found in the current
+//directory
+func noFile(filename string) {
+	log.Fatalln("university-cli:", filename, "not found.")
+}
+
+//parseOptions(opts *Options, allArgs []string) parses options
+//in AllArgs and fills the array of Options pointed by opts accordingly
 func parseOptions(opts *Options, allArgs []string) {
 	for i := 0; i < len(allArgs); i++ {
-
 		switch arg := allArgs[i]; arg {
 		case "-h", "--help":
 			fmt.Println(usage)
@@ -202,21 +210,16 @@ func parseOptions(opts *Options, allArgs []string) {
 	}
 }
 
-func defaultOptions() *Options {
-	return &Options{
-		command:  "youtube-dl",
-		download: "All"}
-}
-
-func hasSubstring(s string, sub string) bool {
-	split := strings.Split(s, sub)
-	return len(split) > 1
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
+//setSpeed(speed string) int sets the speed of the download, accepted
+// values are: "fast" and "slow"
+func setSpeed(opts *Options, speed string) {
+	switch speed {
+	case "fast":
+		opts.command = "youtube-dl"
+	case "slow":
+		opts.command = "ffmpeg"
+	default:
+		log.Fatalln("Speed argument", speed, "not recognised, possible values are:",
+			"'fast' and 'slow'")
 	}
-	return !info.IsDir()
 }
