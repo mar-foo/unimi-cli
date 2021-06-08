@@ -77,7 +77,7 @@ func main() {
 //downloaded based on their name
 func check(videos []video) {
 	var exitCode int
-	for i := 0; i < len(videos); i++ {
+	for i := range videos {
 		if !fileExists(videos[i].name) {
 			fmt.Println("university-cli: file", videos[i].name, "not found.")
 			exitCode = ExitNoFile
@@ -97,7 +97,6 @@ func parseWebpage(filename string) []video {
 		noFile(filename)
 	}
 	webpage := bufio.NewScanner(file)
-	/* videos, names := make([]string, 0), make([]string, 0) */
 	videos := make([]video, 0)
 	for webpage.Scan() {
 		bufLine := webpage.Text()
@@ -133,8 +132,8 @@ func defaultOptions() *Options {
 //download(opts *Options, videos []video) int accept a slice of videos and
 //downloads them named accordingly
 func download(opts *Options, videos []video) {
-	if num := len(videos); opts.download == "All" {
-		for i := 0; i < num; i++ {
+	if opts.download == "All" {
+		for i := range videos {
 			noDep(opts.command)
 			var cmd *exec.Cmd
 			if opts.command == "youtube-dl" {
@@ -165,8 +164,7 @@ func fileExists(filename string) bool {
 //hasSubstring(s string, sub string) returns true if s contains at least one
 //occurrence of sub
 func hasSubstring(s string, sub string) bool {
-	split := strings.Split(s, sub)
-	return len(split) > 1
+	return len(strings.Split(s, sub)) > 1
 }
 
 //noDep(dependency string) ) exits if dependency is not found in PATH
@@ -192,7 +190,7 @@ func noFile(filename string) {
 //parseOptions(opts *Options, allArgs []string) parses options
 //in AllArgs and fills the array of Options pointed by opts accordingly
 func parseOptions(opts *Options, allArgs []string) {
-	for i := 0; i < len(allArgs); i++ {
+	for i := range allArgs {
 		switch arg := allArgs[i]; arg {
 		case "-h", "--help":
 			fmt.Println(usage)
