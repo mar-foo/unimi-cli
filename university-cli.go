@@ -102,7 +102,7 @@ func parseWebpage(filename string) []video {
 		bufLine := webpage.Text()
 		urlRegexp := regexp.MustCompile("https?://.*.m3u8")
 		nameRegexp := regexp.MustCompile(":[[:alpha:]].*.mp4")
-		if hasSubstring(bufLine, "source src=") {
+		if strings.Contains(bufLine, "source src=") {
 			tempURL := urlRegexp.FindString(bufLine)
 			tempName := nameRegexp.FindString(tempURL)
 			if tempName != "" {
@@ -159,12 +159,6 @@ func fileExists(filename string) bool {
 		return false
 	}
 	return !info.IsDir()
-}
-
-//hasSubstring(s string, sub string) returns true if s contains at least one
-//occurrence of sub
-func hasSubstring(s string, sub string) bool {
-	return len(strings.Split(s, sub)) > 1
 }
 
 //noDep(dependency string) ) exits if dependency is not found in PATH
