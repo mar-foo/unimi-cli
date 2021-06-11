@@ -101,7 +101,7 @@ func parseWebpage(filename string) []video {
 	for webpage.Scan() {
 		bufLine := webpage.Text()
 		urlRegexp := regexp.MustCompile("https?://.*.m3u8")
-		nameRegexp := regexp.MustCompile(":[[:alpha:]].*.mp4")
+		nameRegexp := regexp.MustCompile(":[0-9a-zA-Z_-].*.mp4")
 		if strings.Contains(bufLine, "source src=") {
 			tempURL := urlRegexp.FindString(bufLine)
 			tempName := nameRegexp.FindString(tempURL)
