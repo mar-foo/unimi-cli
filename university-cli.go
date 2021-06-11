@@ -184,6 +184,10 @@ func noFile(filename string) {
 //parseOptions(opts *Options, allArgs []string) parses options
 //in AllArgs and fills the array of Options pointed by opts accordingly
 func parseOptions(opts *Options, allArgs []string) {
+	if len(allArgs) == 0 {
+		fmt.Println(usage)
+		os.Exit(ExitWrongArg)
+	}
 	for i := range allArgs {
 		switch arg := allArgs[i]; arg {
 		case "-h", "--help":
