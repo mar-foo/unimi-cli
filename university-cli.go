@@ -21,10 +21,8 @@ const inputFile = "webpage.html"
 /* Exit codes */
 
 const ExitSucces = 0
-const ExitNoDeps = 1
-const ExitNoFile = 2
-const ExitWrongArg = 3
-const ExitNotFound = 4
+const ExitNoFile = 1
+const ExitWrongArg = 2
 
 const usage = `Usage: university-cli [-s SPEED] [OPTIONS]
 
@@ -142,8 +140,8 @@ func download(opts *Options, videos []video) {
 			} else {
 				// TODO Find a better way to handle multi-option commands
 				cmd = exec.Command(opts.command, "-i", videos[i].url, "-n",
-					"-preset", "slow", "-c:v", "libx265", "-crf", "31", "-c:a", "aac",
-					"-b:a", "64k", "-ac", "1", videos[i].name)
+					"-preset", "slow", "-c:v", "libx265", "-crf", "31", "-c:a",
+					"aac", "-b:a", "64k", "-ac", "1", videos[i].name)
 			}
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
